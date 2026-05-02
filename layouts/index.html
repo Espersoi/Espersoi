@@ -1,0 +1,109 @@
+{{ define "main" }}
+  {{ $postPages := sort (where site.RegularPages "Section" "posts") "File.Path" "desc" }}
+  {{ $playlistPosts := where $postPages "Params.track_title" "ne" nil }}
+
+  <div class="terra-home-shell">
+    <div class="terra-breathing-field" aria-hidden="true">
+      <span class="terra-breathing-orb"></span>
+    </div>
+
+    {{ if gt (len $playlistPosts) 0 }}
+      {{ $firstTrack := index $playlistPosts 0 }}
+      {{ $firstTrackTitle := or $firstTrack.Params.track_title $firstTrack.Title }}
+      {{ $firstTrackTitleEncoded := replace (urlquery $firstTrackTitle) "+" "%20" }}
+      {{ $firstTrackSrc := printf "%saudio/%s.mp3" site.Home.RelPermalink $firstTrackTitleEncoded }}
+      <section class="terra-home-player js-audio-player js-audio-playlist" style="--track-progress: 0%;">
+        <div class="terra-player-orb" aria-hidden="true"></div>
+        <div class="terra-home-player-grid">
+          <div class="terra-home-player-main">
+            <div class="terra-player-head terra-home-player-head">
+              <h2 class="js-audio-track-title">{{ $firstTrackTitle }}</h2>
+              <p>
+                <span class="terra-home-player-label">Paroles :</span>
+                <a class="terra-home-player-link js-audio-post-link" href="{{ $firstTrack.RelPermalink }}">{{ $firstTrackTitle }}</a>
+              </p>
+            </div>
+            <audio class="terra-audio-element js-audio-element" preload="metadata" src="{{ $firstTrackSrc }}">
+              <source src="{{ $firstTrackSrc }}" type="audio/mpeg">
+            </audio>
+            <div class="terra-player-controls">
+              <button class="terra-player-button terra-player-skip js-audio-rewind" type="button" aria-label="Reculer de 10 secondes">
+                <span class="material-symbols-outlined">fast_rewind</span>
+              </button>
+              <button class="terra-player-button terra-player-play js-audio-play" type="button" aria-label="Lire le morceau">
+                <span class="material-symbols-outlined js-audio-play-icon">play_arrow</span>
+              </button>
+              <button class="terra-player-button terra-player-skip js-audio-forward" type="button" aria-label="Avancer de 10 secondes">
+                <span class="material-symbols-outlined">fast_forward</span>
+              </button>
+            </div>
+            <div class="terra-progress">
+              <button class="terra-progress-track js-audio-seek" type="button" aria-label="Se deplacer dans le morceau">
+                <span class="terra-progress-fill js-audio-progress-fill"></span>
+                <span class="terra-progress-thumb js-audio-progress-thumb"></span>
+              </button>
+              <div class="terra-progress-times">
+                <span class="js-audio-current">00:00</span>
+                <span class="js-audio-duration">00:00</span>
+              </div>
+            </div>
+            <div class="terra-volume-row">
+              <label class="terra-volume-label" for="audio-volume-home">Volume</label>
+              <input class="terra-volume-slider js-audio-volume" id="audio-volume-home" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume">
+            </div>
+          </div>
+          <div class="terra-playlist" aria-label="Playlist d'accueil">
+            <div class="terra-playlist-header">
+              <span class="terra-kicker terra-kicker--muted">Playlist</span>
+            </div>
+            <div class="terra-playlist-items">
+              {{ range $index, $track := $playlistPosts }}
+                {{ $trackTitle := or $track.Params.track_title $track.Title }}
+                {{ $trackTitleEncoded := replace (urlquery $trackTitle) "+" "%20" }}
+                {{ $trackSrc := printf "%saudio/%s.mp3" site.Home.RelPermalink $trackTitleEncoded }}
+                <button
+                  class="terra-playlist-item js-audio-track{{ if eq $index 0 }} is-active{{ end }}"
+                  type="button"
+                  data-audio-src="{{ $trackSrc }}"
+                  data-track-title="{{ $trackTitle }}"
+                  data-post-title="{{ $trackTitle }}"
+                  data-post-url="{{ $track.RelPermalink }}"
+                >
+                  <span class="terra-playlist-item-order">{{ printf "%02d" (add $index 1) }}</span>
+                  <span class="terra-playlist-item-copy">
+                    <strong>{{ $trackTitle }}</strong>
+                  </span>
+                </button>
+              {{ end }}
+            </div>
+          </div>
+        </div>
+      </section>
+    {{ end }}
+
+    <section class="terra-list-grid" aria-label="Derniers titres">
+      {{ range $postPages }}
+        {{ $trackTitle := or .Params.track_title .Title }}
+        <article class="terra-list-item">
+          <div class="terra-list-item-body">
+            <h2><a href="{{ .RelPermalink }}">{{ $trackTitle }}</a></h2>
+            <p>{{ .Summary | plainify | truncate 190 }}</p>
+          </div>
+        </article>
+      {{ else }}
+        <article class="terra-list-item terra-list-item--empty">
+          <div class="terra-list-item-body">
+            <h2>Aucun titre pour le moment</h2>
+            <p>Ajoutez un fichier Markdown dans <code>content/posts</code> et il apparaitra ici.</p>
+          </div>
+        </article>
+      {{ end }}
+    </section>
+
+    {{ with .Content }}
+      <section class="terra-home-copy terra-prose">
+        {{ . }}
+      </section>
+    {{ end }}
+  </div>
+{{ end }}

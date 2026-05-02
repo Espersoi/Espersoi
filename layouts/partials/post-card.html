@@ -1,0 +1,4 @@
+<article class="post-card">
+  <h3><a href="{{ .RelPermalink }}">{{ or .Params.track_title .Title }}</a></h3>
+  <p>{{ .Summary | plainify }}</p>
+</article>

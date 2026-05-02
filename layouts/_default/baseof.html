@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="{{ site.Language.LanguageCode | default `en` }}">
+  <head>
+    {{ $displayTitle := .Title }}
+    {{ if and (eq .Section `posts`) (eq .Kind `page`) }}
+      {{ $displayTitle = or .Params.track_title .Title }}
+    {{ end }}
+    {{ $pageTitle := site.Title }}
+    {{ if not .IsHome }}
+      {{ $pageTitle = printf "%s | %s" $displayTitle site.Title }}
+    {{ end }}
+    {{ $pageDescription := or site.Params.description site.Title }}
+    {{ if and (eq .Section `posts`) (eq .Kind `page`) }}
+      {{ $pageDescription = or (.Summary | plainify | truncate 160) site.Params.description site.Title }}
+    {{ else if not .IsHome }}
+      {{ $pageDescription = or .Params.description site.Params.description site.Title }}
+    {{ end }}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ $pageDescription }}">
+    <title>{{ $pageTitle }}</title>
+    <link rel="canonical" href="{{ .Permalink }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ `css/site.css` | relURL }}">
+    {{ if or .IsHome (and (eq .Section `posts`) (eq .Kind `page`)) }}
+      <script src="{{ `js/audio-player.js` | relURL }}" defer></script>
+    {{ end }}
+  </head>
+  <body class="terra-body{{ if .IsHome }} template-home{{ else if and (eq .Kind `page`) (eq .Section `posts`) }} template-post{{ else if and (eq .Kind `section`) (eq .Section `posts`) }} template-journal{{ end }}">
+    <header class="terra-topbar">
+      <nav class="terra-nav" aria-label="Principal">
+        <a class="terra-wordmark" href="{{ `/` | relURL }}">{{ site.Title }}</a>
+        <div class="terra-nav-links">
+          {{ $currentPage := . }}
+          {{ range site.Menus.main }}
+            {{ $menuURL := .URL | relURL }}
+            {{ $isActive := or ($currentPage.IsMenuCurrent `main` .) ($currentPage.HasMenuCurrent `main` .) (eq $currentPage.RelPermalink $menuURL) }}
+            <a class="terra-nav-link{{ if $isActive }} is-active{{ end }}" href="{{ $menuURL }}">{{ .Name }}</a>
+          {{ end }}
+        </div>
+      </nav>
+    </header>
+
+    <main class="terra-main">
+      {{ block "main" . }}{{ end }}
+    </main>
+
+    <footer class="terra-footer">
+      <div class="terra-footer-inner">
+        <p>&copy; {{ now | time.Format "2006" }} {{ site.Params.author }}</p>
+      </div>
+    </footer>
+  </body>
+</html>

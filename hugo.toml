@@ -1,0 +1,33 @@
+baseURL = "https://espersoi.github.io/"
+languageCode = "fr-fr"
+title = "Espersoi"
+enableRobotsTXT = true
+summaryLength = 26
+disableKinds = ["taxonomy", "term", "section"]
+
+[pagination]
+  pagerSize = 6
+
+[caches]
+  [caches.images]
+    dir = ':cacheDir/images'
+
+[params]
+  author = "Espersoi"
+
+[[menus.main]]
+  name = "Accueil"
+  url = "/"
+  weight = 10
+
+[[menus.main]]
+  name = "A propos"
+  pageRef = "/about"
+  weight = 20
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = false
+  [markup.highlight]
+    noClasses = true

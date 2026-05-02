@@ -1,0 +1,63 @@
+{{ define "main" }}
+  {{ $trackTitle := or .Params.track_title .Title }}
+  {{ $encodedTrackTitle := replace (urlquery $trackTitle) "+" "%20" }}
+  {{ $trackCurrent := or .Params.track_current_time "00:00" }}
+  {{ $trackTotal := or .Params.track_total_time "00:00" }}
+  {{ $trackProgress := or .Params.track_progress 0 }}
+  {{ $audioSrc := printf "%saudio/%s.mp3" site.Home.RelPermalink $encodedTrackTitle }}
+
+  <article class="terra-post-shell">
+    <section class="terra-player js-audio-player" style="--track-progress: {{ $trackProgress }}%;">
+      <div class="terra-player-orb" aria-hidden="true"></div>
+      <div class="terra-player-head">
+        <span class="terra-kicker terra-kicker--muted">En lecture</span>
+        <h2>{{ $trackTitle }}</h2>
+      </div>
+      <audio class="terra-audio-element js-audio-element" preload="metadata" {{ with $audioSrc }}src="{{ . }}"{{ end }}>
+        {{ with $audioSrc }}
+          <source src="{{ . }}" type="audio/mpeg">
+        {{ end }}
+      </audio>
+      <div class="terra-player-controls">
+        <button class="terra-player-button terra-player-skip js-audio-rewind" type="button" aria-label="Reculer de 10 secondes" {{ if not $audioSrc }}disabled{{ end }}>
+          <span class="material-symbols-outlined">fast_rewind</span>
+        </button>
+        <button class="terra-player-button terra-player-play js-audio-play" type="button" aria-label="Lire le morceau" {{ if not $audioSrc }}disabled{{ end }}>
+          <span class="material-symbols-outlined js-audio-play-icon">play_arrow</span>
+        </button>
+        <button class="terra-player-button terra-player-skip js-audio-forward" type="button" aria-label="Avancer de 10 secondes" {{ if not $audioSrc }}disabled{{ end }}>
+          <span class="material-symbols-outlined">fast_forward</span>
+        </button>
+      </div>
+      <div class="terra-progress">
+        <button class="terra-progress-track js-audio-seek" type="button" aria-label="Se deplacer dans le morceau" {{ if not $audioSrc }}disabled{{ end }}>
+          <span class="terra-progress-fill js-audio-progress-fill"></span>
+          <span class="terra-progress-thumb js-audio-progress-thumb"></span>
+        </button>
+        <div class="terra-progress-times">
+          <span class="js-audio-current">{{ $trackCurrent }}</span>
+          <span class="js-audio-duration">{{ $trackTotal }}</span>
+        </div>
+      </div>
+      <div class="terra-volume-row">
+        <label class="terra-volume-label" for="audio-volume-{{ .File.UniqueID }}">Volume</label>
+        <input class="terra-volume-slider js-audio-volume" id="audio-volume-{{ .File.UniqueID }}" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume" {{ if not $audioSrc }}disabled{{ end }}>
+      </div>
+    </section>
+
+    <section class="terra-lyrics-shell">
+      <div class="terra-lyrics-header">
+        <span class="material-symbols-outlined">auto_stories</span>
+        <h2>Paroles</h2>
+        <p>Texte du morceau</p>
+      </div>
+      <div class="terra-lyrics-body terra-prose">
+        {{ with .Content }}
+          {{ . }}
+        {{ else }}
+          <p>Ajoutez les paroles de ce morceau dans le contenu Markdown du billet.</p>
+        {{ end }}
+      </div>
+    </section>
+  </article>
+{{ end }}

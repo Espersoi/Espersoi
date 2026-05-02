@@ -1,0 +1,36 @@
+{{ define "main" }}
+  {{ $pages := sort .RegularPages "File.Path" "desc" }}
+  <div class="terra-list-shell">
+    <header class="terra-section-header">
+      <span class="terra-kicker">Archives</span>
+      <h1>{{ .Title }}</h1>
+      {{ with .Params.description }}
+        <p>{{ . }}</p>
+      {{ end }}
+      {{ with .Content }}
+        <div class="terra-prose terra-section-copy">
+          {{ . }}
+        </div>
+      {{ end }}
+    </header>
+
+    <section class="terra-list-grid">
+      {{ range $pages }}
+        {{ $trackTitle := or .Params.track_title .Title }}
+        <article class="terra-list-item">
+          <div class="terra-list-item-body">
+            <h2><a href="{{ .RelPermalink }}">{{ $trackTitle }}</a></h2>
+            <p>{{ .Summary | plainify | truncate 190 }}</p>
+          </div>
+        </article>
+      {{ else }}
+        <article class="terra-list-item terra-list-item--empty">
+          <div class="terra-list-item-body">
+            <h2>Aucun titre pour le moment</h2>
+            <p>Ajoutez un fichier Markdown dans <code>content/posts</code> et il apparaitra ici.</p>
+          </div>
+        </article>
+      {{ end }}
+    </section>
+  </div>
+{{ end }}
