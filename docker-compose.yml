@@ -1,0 +1,15 @@
+services:
+  hugo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        HUGO_VERSION: 0.160.0
+        USER_ID: ${UID:-1000}
+        GROUP_ID: ${GID:-1000}
+    environment:
+      HUGO_ENV: development
+    ports:
+      - "0.0.0.0:1313:1313"
+    volumes:
+      - .:/src
